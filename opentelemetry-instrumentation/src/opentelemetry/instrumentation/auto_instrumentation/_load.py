@@ -32,6 +32,8 @@ from opentelemetry.util._importlib_metadata import (
     distributions,
     entry_points,
 )
+from .conflict import resolve_langchain_openai_conflict
+
 
 _logger = getLogger(__name__)
 
@@ -85,6 +87,7 @@ def _load_distro() -> BaseDistro:
 
 
 def _load_instrumentors(distro):
+    resolve_langchain_openai_conflict()
     package_to_exclude = environ.get(OTEL_PYTHON_DISABLED_INSTRUMENTATIONS, [])
     entry_point_finder = _EntryPointDistFinder()
     if isinstance(package_to_exclude, str):

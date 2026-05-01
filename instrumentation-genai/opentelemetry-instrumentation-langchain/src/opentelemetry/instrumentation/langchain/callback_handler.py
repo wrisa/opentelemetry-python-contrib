@@ -35,6 +35,11 @@ from opentelemetry.util.genai.types import (
     OutputMessage,
     Text,
 )
+from opentelemetry.instrumentation.langchain.operation_mapping import (
+    OperationName,
+    classify_chain_run,
+    resolve_agent_name,
+)
 
 
 class OpenTelemetryLangChainCallbackHandler(BaseCallbackHandler):
@@ -58,24 +63,30 @@ class OpenTelemetryLangChainCallbackHandler(BaseCallbackHandler):
         metadata: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Any:
-        payload = serialized or {}
-        name_source = (
-            payload.get("name")
-            or payload.get("id")
-            or kwargs.get("name")
-            or (metadata.get("langgraph_node") if metadata else None)
+        operation = classify_chain_run(
+            serialized, metadata, kwargs, parent_run_id
         )
-        name = str(name_source or "chain")
 
-        if parent_run_id is None:
+        if operation == OperationName.INVOKE_WORKFLOW:
+            workflow_name = kwargs.get("name") or serialized.get("name")
             workflow_name_override = (
                 metadata.get("workflow_name") if metadata else None
             )
             wf = self._telemetry_handler.start_workflow(
-                name=workflow_name_override or name
+                name=workflow_name_override or workflow_name
             )
             self._invocation_manager.add_invocation_state(run_id, None, wf)
-        # TODO: handle non-workflow chains (e.g. agent sub-chains) in the future
+        elif operation == OperationName.INVOKE_AGENT:
+            agent_name = resolve_agent_name(serialized, metadata, kwargs)
+
+            if metadata:
+                agent_id = metadata.get("agent_id")
+                agent_desc = metadata.get("agent_description")
+
+                for key in ("thread_id", "session_id", "conversation_id"):
+                    conv_id = metadata.get(key)
+
+                provider = metadata.get("ls_provider", "unknown")
 
     def on_chain_end(
         self,

@@ -5,11 +5,13 @@ A single ReAct agent answers arithmetic questions using calculator tools.
 OpenTelemetry LangChain instrumentation traces all LLM calls.
 """
 
+from uuid import uuid4
+
+from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, MessagesState, StateGraph
-from langchain.agents import create_agent
 
 from opentelemetry import _logs, metrics, trace
 from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
@@ -58,7 +60,6 @@ def add(a: float, b: float) -> float:
 # --- Graph ----------------------------------------------------------------
 
 def build_single_node_graph(llm: ChatOpenAI):
-    from uuid import uuid4
     session_id = str(uuid4())
 
     agent = create_agent(

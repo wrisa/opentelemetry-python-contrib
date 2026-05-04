@@ -308,7 +308,6 @@ class TestOnChainStartAgent:
         handler, telemetry, _, agent_inv = _make_handler()
         grandparent_id = _run_id()
         parent_id = _run_id()
-        child_id = _run_id()
 
         # Grandparent: a known agent
         handler.on_chain_start(

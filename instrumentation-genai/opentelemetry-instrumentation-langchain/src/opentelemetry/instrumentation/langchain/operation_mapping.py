@@ -47,10 +47,7 @@ __all__ = [
 class OperationName:
     """Canonical GenAI semantic convention operation names."""
 
-    CHAT: str = GenAI.GenAiOperationNameValues.CHAT.value
-    TEXT_COMPLETION: str = GenAI.GenAiOperationNameValues.TEXT_COMPLETION.value
     INVOKE_AGENT: str = GenAI.GenAiOperationNameValues.INVOKE_AGENT.value
-    EXECUTE_TOOL: str = GenAI.GenAiOperationNameValues.EXECUTE_TOOL.value
     # invoke_workflow is not yet in the semconv enum; use the expected
     # string value so the mapping is forward-compatible.
     INVOKE_WORKFLOW: str = "invoke_workflow"
@@ -101,7 +98,7 @@ def resolve_agent_name(
     if name:
         return str(name)
 
-    name = serialized.get("name")
+    name = serialized.get("name") if serialized else None
     if name:
         return str(name)
 
@@ -124,30 +121,6 @@ def _has_agent_signals(metadata: Optional[dict[str, Any]]) -> bool:
     )
 
 
-def _is_langgraph_agent_node(
-    serialized: dict[str, Any],
-    metadata: Optional[dict[str, Any]],
-    kwargs: dict[str, Any],
-) -> bool:
-    """Detect a LangGraph agent node that is not a start/middleware node."""
-    if not metadata:
-        return False
-
-    node = metadata.get(LANGGRAPH_NODE_KEY)
-    if not node:
-        return False
-
-    # Exclude start and middleware nodes.
-    if node == LANGGRAPH_START_NODE:
-        return False
-
-    name = resolve_agent_name(serialized, metadata, kwargs)
-    if name and name.startswith(MIDDLEWARE_PREFIX):
-        return False
-
-    return True
-
-
 def _looks_like_workflow(
     serialized: dict[str, Any],
     metadata: Optional[dict[str, Any]],
@@ -162,13 +135,16 @@ def _looks_like_workflow(
         return True
 
     # Heuristic: check for LangGraph identifier in the serialized repr.
-    name = serialized.get("name", "")
-    graph_id = (
-        serialized.get("graph", {}).get("id", "")
-        if isinstance(serialized.get("graph"), dict)
-        else ""
-    )
-    return LANGGRAPH_IDENTIFIER in name or LANGGRAPH_IDENTIFIER in graph_id
+    if serialized:
+        name = serialized.get("name", "")
+        graph_id = (
+            serialized.get("graph", {}).get("id", "")
+            if isinstance(serialized.get("graph"), dict)
+            else ""
+        )
+        return LANGGRAPH_IDENTIFIER in name or LANGGRAPH_IDENTIFIER in graph_id
+
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -179,7 +155,6 @@ def _looks_like_workflow(
 def should_ignore_chain(
     metadata: Optional[dict[str, Any]],
     agent_name: Optional[str],
-    parent_run_id: Optional[UUID],
     kwargs: dict[str, Any],
 ) -> bool:
     """Return True if the chain callback should be silently suppressed.
@@ -238,14 +213,11 @@ def classify_chain_run(
     agent_name = resolve_agent_name(serialized, metadata, kwargs)
 
     # 1. Suppress known noise.
-    if should_ignore_chain(metadata, agent_name, parent_run_id, kwargs):
+    if should_ignore_chain(metadata, agent_name, kwargs):
         return None
 
     # 2. Agent detection.
     if _has_agent_signals(metadata):
-        return OperationName.INVOKE_AGENT
-
-    if _is_langgraph_agent_node(serialized, metadata, kwargs):
         return OperationName.INVOKE_AGENT
 
     # 3. Workflow / orchestration detection.

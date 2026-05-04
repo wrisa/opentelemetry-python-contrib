@@ -23,7 +23,7 @@ __all__ = ["_InvocationManager"]
 
 @dataclass
 class _InvocationState:
-    invocation: GenAIInvocation
+    invocation: Optional[GenAIInvocation]
     children: List[UUID] = field(default_factory=lambda: list())
     parent_run_id: Optional[UUID] = None
     ended: bool = False

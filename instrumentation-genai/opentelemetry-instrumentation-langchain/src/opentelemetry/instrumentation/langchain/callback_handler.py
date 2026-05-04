@@ -409,7 +409,7 @@ class OpenTelemetryLangChainCallbackHandler(BaseCallbackHandler):
         self, run_id: Optional[UUID]
     ) -> Optional[AgentInvocation]:
         current = run_id
-        visited = set()
+        visited: set[UUID] = set()
         while current is not None and current not in visited:
             visited.add(current)
             entity = self._invocation_manager.get_invocation(current)

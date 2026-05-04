@@ -24,8 +24,6 @@ from __future__ import annotations
 import uuid
 from unittest import mock
 
-import pytest
-
 from opentelemetry.instrumentation.langchain.callback_handler import (
     OpenTelemetryLangChainCallbackHandler,
 )

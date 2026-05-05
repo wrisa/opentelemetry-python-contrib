@@ -53,6 +53,7 @@ metrics.set_meter_provider(
 
 # --- Tools ----------------------------------------------------------------
 
+
 @tool
 def multiply(a: float, b: float) -> float:
     """Multiply two numbers."""
@@ -66,6 +67,7 @@ def add(a: float, b: float) -> float:
 
 
 # --- Graph ----------------------------------------------------------------
+
 
 def build_single_node_graph(llm: ChatOpenAI):
     session_id = str(uuid4())

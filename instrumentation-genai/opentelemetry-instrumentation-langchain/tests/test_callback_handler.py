@@ -19,8 +19,6 @@ All TelemetryHandler interactions are mocked so that these tests exercise only
 the callback-handler logic and the invocation-manager bookkeeping.
 """
 
-from __future__ import annotations
-
 import uuid
 from unittest import mock
 

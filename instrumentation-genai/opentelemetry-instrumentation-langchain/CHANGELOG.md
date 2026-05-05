@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-- Add LangChain workflow span support and refactor LLM invocation
+- Add LangChain workflow and agent span support. Also refactor LLM invocation.
   ([#4449](https://github.com/open-telemetry/opentelemetry-python-contrib/pull/4449))
 - Fix compatibility with wrapt 2.x by using positional arguments in `wrap_function_wrapper()` calls
   ([#4445](https://github.com/open-telemetry/opentelemetry-python-contrib/pull/4445))

@@ -1,17 +1,3 @@
-# Copyright The OpenTelemetry Authors
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 """Unit tests for on_chain_start / on_chain_end / on_chain_error in
 OpenTelemetryLangChainCallbackHandler.
 
@@ -30,10 +16,10 @@ from opentelemetry.util.genai.invocation import (
     WorkflowInvocation,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_handler():
     """Return a handler wired to a MagicMock TelemetryHandler."""
@@ -63,6 +49,7 @@ def _run_id():
 # on_chain_start – INVOKE_WORKFLOW
 # ---------------------------------------------------------------------------
 
+
 class TestOnChainStartWorkflow:
     def test_workflow_span_created(self):
         handler, telemetry, workflow_inv, _ = _make_handler()
@@ -77,7 +64,9 @@ class TestOnChainStartWorkflow:
         )
 
         telemetry.start_workflow.assert_called_once()
-        assert handler._invocation_manager.get_invocation(run_id) is workflow_inv
+        assert (
+            handler._invocation_manager.get_invocation(run_id) is workflow_inv
+        )
 
     def test_workflow_name_from_serialized(self):
         handler, telemetry, _, _ = _make_handler()
@@ -104,7 +93,9 @@ class TestOnChainStartWorkflow:
             metadata={"workflow_name": "custom_workflow"},
         )
 
-        telemetry.start_workflow.assert_called_once_with(name="custom_workflow")
+        telemetry.start_workflow.assert_called_once_with(
+            name="custom_workflow"
+        )
 
     def test_workflow_registered_in_invocation_manager(self):
         handler, _, workflow_inv, _ = _make_handler()
@@ -117,12 +108,15 @@ class TestOnChainStartWorkflow:
             parent_run_id=None,
         )
 
-        assert handler._invocation_manager.get_invocation(run_id) is workflow_inv
+        assert (
+            handler._invocation_manager.get_invocation(run_id) is workflow_inv
+        )
 
 
 # ---------------------------------------------------------------------------
 # on_chain_start – INVOKE_AGENT
 # ---------------------------------------------------------------------------
+
 
 class TestOnChainStartAgent:
     def test_new_agent_span_created(self):
@@ -137,7 +131,9 @@ class TestOnChainStartAgent:
             metadata={"agent_name": "math_agent", "ls_provider": "openai"},
         )
 
-        telemetry.start_invoke_local_agent.assert_called_once_with(provider="openai")
+        telemetry.start_invoke_local_agent.assert_called_once_with(
+            provider="openai"
+        )
         assert agent_inv.agent_name == "math_agent"
         assert handler._invocation_manager.get_invocation(run_id) is agent_inv
 
@@ -243,7 +239,10 @@ class TestOnChainStartAgent:
             metadata={"agent_name": "weather_agent"},
         )
 
-        assert handler._invocation_manager.get_invocation(child_run_id) is second_agent_inv
+        assert (
+            handler._invocation_manager.get_invocation(child_run_id)
+            is second_agent_inv
+        )
         assert second_agent_inv.agent_name == "weather_agent"
 
     def test_agent_name_comparison_is_case_insensitive(self):
@@ -333,6 +332,7 @@ class TestOnChainStartAgent:
 # on_chain_start – unclassified
 # ---------------------------------------------------------------------------
 
+
 class TestOnChainStartUnclassified:
     def test_unclassified_chain_registers_none_and_no_span(self):
         handler, telemetry, _, _ = _make_handler()
@@ -360,6 +360,7 @@ class TestOnChainStartUnclassified:
 # ---------------------------------------------------------------------------
 # on_chain_end
 # ---------------------------------------------------------------------------
+
 
 class TestOnChainEnd:
     def test_workflow_invocation_stopped_on_chain_end(self):
@@ -430,6 +431,7 @@ class TestOnChainEnd:
 # on_chain_error
 # ---------------------------------------------------------------------------
 
+
 class TestOnChainError:
     def test_workflow_invocation_failed_on_chain_error(self):
         handler, telemetry, workflow_inv, _ = _make_handler()
@@ -497,6 +499,7 @@ class TestOnChainError:
 # _find_nearest_agent
 # ---------------------------------------------------------------------------
 
+
 class TestFindNearestAgent:
     def test_returns_none_when_no_agent_in_ancestry(self):
         handler, _, workflow_inv, _ = _make_handler()
@@ -525,7 +528,9 @@ class TestFindNearestAgent:
         )
 
         # Register the child as unclassified so it links to the parent
-        handler._invocation_manager.add_invocation_state(child_id, parent_id, None)
+        handler._invocation_manager.add_invocation_state(
+            child_id, parent_id, None
+        )
 
         found = handler._find_nearest_agent(child_id)
         assert found is agent_inv
@@ -543,8 +548,12 @@ class TestFindNearestAgent:
             parent_run_id=None,
             metadata={"agent_name": "math_agent"},
         )
-        handler._invocation_manager.add_invocation_state(parent_id, grandparent_id, None)
-        handler._invocation_manager.add_invocation_state(child_id, parent_id, None)
+        handler._invocation_manager.add_invocation_state(
+            parent_id, grandparent_id, None
+        )
+        handler._invocation_manager.add_invocation_state(
+            child_id, parent_id, None
+        )
 
         found = handler._find_nearest_agent(child_id)
         assert found is agent_inv

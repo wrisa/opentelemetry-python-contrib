@@ -1,3 +1,6 @@
+# Copyright The OpenTelemetry Authors
+# SPDX-License-Identifier: Apache-2.0
+
 """Unit tests for on_chain_start / on_chain_end / on_chain_error in
 OpenTelemetryLangChainCallbackHandler.
 

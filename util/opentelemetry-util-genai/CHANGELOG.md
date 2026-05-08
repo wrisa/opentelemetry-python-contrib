@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#4538](https://github.com/open-telemetry/opentelemetry-python-contrib/pull/4538))
 - Apply attribute for sampling on instantiation of all invocation types.
   ([#4553](https://github.com/open-telemetry/opentelemetry-python-contrib/pull/4553))
+- Minor code cleanup and changes in preparation of moving google's GenAI instrumentation
+  library to use this util library ([#4556](https://github.com/open-telemetry/opentelemetry-python-contrib/pull/4556))
 
 ## Version 0.4b0 (2026-05-01)
 

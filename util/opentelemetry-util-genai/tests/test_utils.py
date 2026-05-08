@@ -14,7 +14,7 @@ from opentelemetry.instrumentation._semconv import (
 )
 from opentelemetry.sdk._logs import LoggerProvider
 from opentelemetry.sdk._logs.export import (
-    InMemoryLogExporter,
+    InMemoryLogRecordExporter,
     SimpleLogRecordProcessor,
 )
 from opentelemetry.sdk.trace import ReadableSpan, TracerProvider
@@ -213,7 +213,7 @@ class TestTelemetryHandler(unittest.TestCase):
         tracer_provider.add_span_processor(
             SimpleSpanProcessor(self.span_exporter)
         )
-        self.log_exporter = InMemoryLogExporter()
+        self.log_exporter = InMemoryLogRecordExporter()
         logger_provider = LoggerProvider()
         logger_provider.add_log_record_processor(
             SimpleLogRecordProcessor(self.log_exporter)

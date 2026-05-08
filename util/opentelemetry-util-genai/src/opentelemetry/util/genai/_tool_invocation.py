@@ -94,6 +94,7 @@ class ToolInvocation(GenAIInvocation):
             (GenAI.GEN_AI_TOOL_CALL_ID, self.tool_call_id),
             (GenAI.GEN_AI_TOOL_TYPE, self.tool_type),
             (GenAI.GEN_AI_TOOL_DESCRIPTION, self.tool_description),
+            (GenAI.GEN_AI_TOOL_CALL_ARGUMENTS, self.arguments),
         )
         attributes: dict[str, Any] = {
             GenAI.GEN_AI_OPERATION_NAME: self._operation_name,

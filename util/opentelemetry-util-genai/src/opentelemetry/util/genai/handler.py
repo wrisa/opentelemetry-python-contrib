@@ -141,6 +141,7 @@ class TelemetryHandler:
         request_model: str | None = None,
         server_address: str | None = None,
         server_port: int | None = None,
+        operation_name: str | None = None,
     ) -> InferenceInvocation:
         """Create and start an LLM inference invocation.
 
@@ -156,6 +157,7 @@ class TelemetryHandler:
             request_model=request_model,
             server_address=server_address,
             server_port=server_port,
+            operation_name=operation_name,
         )
 
     def start_llm(self, invocation: LLMInvocation) -> LLMInvocation:

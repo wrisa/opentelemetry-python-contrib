@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from langchain_core.messages import AIMessage
 
@@ -17,7 +17,7 @@ def make_input_message(data: Any) -> list[InputMessage]:
     """Create structured input message with full data as JSON."""
     if not isinstance(data, dict):
         return []
-    data_dict: dict[str, Any] = data
+    data_dict = cast(dict[str, Any], data)
     input_messages: list[InputMessage] = []
     messages: Any = data_dict.get("messages")
     if messages is not None:

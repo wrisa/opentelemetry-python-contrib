@@ -10,10 +10,10 @@ OpenTelemetry LangChain instrumentation traces the LLM calls made by the agent.
 
 from uuid import uuid4
 
-from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
+from langgraph.prebuilt import create_react_agent
 
 from opentelemetry import _logs, metrics, trace
 from opentelemetry.exporter.otlp.proto.grpc._log_exporter import (
@@ -80,9 +80,7 @@ def main():
     )
 
     session_id = str(uuid4())
-    agent = create_agent(
-        llm, tools=[multiply, add], name="coordinator"
-    ).with_config(
+    agent = create_react_agent(llm, tools=[multiply, add]).with_config(
         {
             "metadata": {
                 "agent_name": "coordinator",

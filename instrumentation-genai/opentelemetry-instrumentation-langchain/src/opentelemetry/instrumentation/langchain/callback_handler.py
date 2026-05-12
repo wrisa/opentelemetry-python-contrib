@@ -18,6 +18,10 @@ from opentelemetry.instrumentation.langchain.operation_mapping import (
     classify_chain_run,
     resolve_agent_name,
 )
+from opentelemetry.instrumentation.langchain.utils import (
+    make_input_message,
+    make_last_output_message,
+)
 from opentelemetry.util.genai.handler import TelemetryHandler
 from opentelemetry.util.genai.invocation import (
     AgentInvocation,
@@ -65,6 +69,7 @@ class OpenTelemetryLangChainCallbackHandler(BaseCallbackHandler):
             workflow = self._telemetry_handler.start_workflow(
                 name=workflow_name_override or workflow_name
             )
+            workflow.input_messages = make_input_message(inputs)
             self._invocation_manager.add_invocation_state(
                 run_id, parent_run_id, workflow
             )
@@ -92,6 +97,7 @@ class OpenTelemetryLangChainCallbackHandler(BaseCallbackHandler):
                         else "unknown",
                     )
                     agent.agent_name = suggested_agent_name
+                    agent.input_messages = make_input_message(inputs)
 
                     if metadata:
                         agent.agent_id = metadata.get("agent_id")
@@ -145,6 +151,9 @@ class OpenTelemetryLangChainCallbackHandler(BaseCallbackHandler):
             # If the invocation does not exist, we cannot set attributes or end it
             self._invocation_manager.delete_invocation_state(run_id)
             return
+
+        if isinstance(invocation, (WorkflowInvocation, AgentInvocation)):
+            invocation.output_messages = make_last_output_message(outputs)
 
         invocation.stop()
 

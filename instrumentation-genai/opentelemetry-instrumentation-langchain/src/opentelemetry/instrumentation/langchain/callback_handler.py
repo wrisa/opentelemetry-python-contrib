@@ -152,8 +152,7 @@ class OpenTelemetryLangChainCallbackHandler(BaseCallbackHandler):
             self._invocation_manager.delete_invocation_state(run_id)
             return
 
-        if isinstance(invocation, (WorkflowInvocation, AgentInvocation)):
-            invocation.output_messages = make_last_output_message(outputs)
+        invocation.output_messages = make_last_output_message(outputs)
 
         invocation.stop()
 

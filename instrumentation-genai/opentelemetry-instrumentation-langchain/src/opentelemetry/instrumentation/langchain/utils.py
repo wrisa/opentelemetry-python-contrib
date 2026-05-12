@@ -17,12 +17,13 @@ def make_input_message(data: Any) -> list[InputMessage]:
     """Create structured input message with full data as JSON."""
     if not isinstance(data, dict):
         return []
+    data_dict: dict[str, Any] = data
     input_messages: list[InputMessage] = []
-    messages = data.get("messages")
+    messages: Any = data_dict.get("messages")
     if messages is not None:
         for msg in messages:
-            content = getattr(msg, "content", "")
-            if content:
+            content: Any = getattr(msg, "content", "")
+            if content and isinstance(content, str):
                 input_message = InputMessage(
                     role="user", parts=[Text(content)]
                 )
@@ -32,9 +33,9 @@ def make_input_message(data: Any) -> list[InputMessage]:
     # Common in LangGraph where nodes use structured state fields
     # (e.g., user_query) rather than a message list.
     exclude_keys = {"messages", "intermediate_steps"}
-    input_data = {
+    input_data: dict[str, Any] = {
         k: v
-        for k, v in data.items()
+        for k, v in data_dict.items()
         if k not in exclude_keys and v is not None
     }
     if input_data:
@@ -46,22 +47,19 @@ def make_input_message(data: Any) -> list[InputMessage]:
 
 def make_output_message(data: dict[str, Any]) -> list[OutputMessage]:
     """Create structured output message with full data as JSON."""
-    if not isinstance(data, dict):
-        return []
     output_messages: list[OutputMessage] = []
-    messages = data.get("messages")
+    messages: Any = data.get("messages")
     if messages is None:
         return []
     for msg in messages:
-        content = getattr(msg, "content", "")
-        if content:
-            if isinstance(msg, AIMessage):
-                output_message = OutputMessage(
-                    role="assistant",
-                    parts=[Text(msg.content)],
-                    finish_reason="stop",
-                )
-                output_messages.append(output_message)
+        content: Any = getattr(msg, "content", "")
+        if content and isinstance(msg, AIMessage) and isinstance(content, str):
+            output_message = OutputMessage(
+                role="assistant",
+                parts=[Text(content)],
+                finish_reason="stop",
+            )
+            output_messages.append(output_message)
     return output_messages
 
 
